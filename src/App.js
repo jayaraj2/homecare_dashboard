@@ -42,8 +42,8 @@ function App() {
   const [piechartCategory, setPiechartCategory] = useState([]);
   // const [showTableData2, setShowTableData2] = useState(false);
   const [firstbar, setfirstbar] = useState(true);
-  // const [detailsVisible, setDetailsVisible] = useState((false));
-
+  // const [detailsVisible, setDetailsVisible] = useState({});
+const [isLoading, setIsLoading] = useState(false);
 
   // console.log(tabledata3);
   // console.log(tabledata1);
@@ -262,17 +262,19 @@ function App() {
     console.log(from_Date);
     console.log(to_Date);
     console.log(select_branch);
-
+    setIsLoading(true); 
     axios.post(`${URLDevelopment}/getreceipts?from_date=${from_Date}&to_date=${to_Date}&branch_id=${select_branch}`)
       .then(response => {
         //setData(response.data);
         settabledata1(response.data.data);
         console.log(response.data.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching data: ', error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-
   }
 
 
@@ -305,17 +307,19 @@ function App() {
     console.log(from_Date);
     console.log(to_Date);
     console.log(select_branch);
-
+    setIsLoading(true); 
     axios.post(`${URLDevelopment}/getpendingreceipts?from_date=${from_Date}&to_date=${to_Date}&branch_id=${select_branch}`)
       .then(response => {
         //setData(response.data);
         settabledata1(response.data.data);
         console.log(response.data.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching data: ', error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-
   }
 
 
@@ -351,7 +355,7 @@ function App() {
     console.log(select_branch);
 
     const branchIdParam = select_branch !== undefined ? select_branch : '';
-
+    setIsLoading(true); 
     axios.post(`${URLDevelopment}/getcompletedschedules?from_date=${from_Date}&to_date=${to_Date}&branch_id=${branchIdParam}`)
       .then(response => {
         //setData(response.data);
@@ -359,9 +363,13 @@ function App() {
         settabledata3(response.data.success);
         console.log(response.data.success);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching data: ', error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
+      
   }
 
 
@@ -397,7 +405,7 @@ function App() {
     console.log(select_branch);
 
     const branchIdParam = select_branch !== undefined ? select_branch : '';
-
+    setIsLoading(true);
     axios.post(`${URLDevelopment}/getpendingschedules?from_date=${from_Date}&to_date=${to_Date}&branch_id=${branchIdParam}`)
       .then(response => {
         //setData(response.data);
@@ -406,8 +414,11 @@ function App() {
 
         console.log(response.data.success);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching data: ', error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
 
   }
@@ -420,7 +431,7 @@ function App() {
   const fetchData = () => {
 
     setfirstbar(true);
-
+    setIsLoading(true); 
 
     const from_Date = fromDate ? new Date(fromDate) : new Date();
 
@@ -439,23 +450,9 @@ function App() {
     const toDay = String(to_Date.getDate()).padStart(2, '0');
     const formattedTo_Date = `${toYear}-${toMonth}-${toDay}`;
 
-    // Rest of your code for API calls using Axios...
 
-
-    // console.log('From Date:', formattedFrom_Date);
-    // console.log('To Date:', formattedTo_Date);
-    // console.log('Branch ID:', branch.id);
-    // console.log('Category: ', mastercategories);
-    // console.log('Selected Category', selectedCategory.id);
-    // console.log('Hide/Show: ', firstbar);
     var select_branch = branch.id;
     var select_category = selectedCategory.id;
-
-    //console.log(from_Date);
-    //console.log(to_Date);
-    //console.log(select_branch);
-    //console.log(select_category);
-
 
     if (!select_category) {
       console.log("Not Selected");
@@ -467,11 +464,10 @@ function App() {
 
       console.log("Service Params:-" + formattedFrom_Date + " " + formattedTo_Date + " " + branchIdParam + " " + select_category);
       // Completed  and Pending Service Schedules
+      setIsLoading(true);
       axios.post(`${URLDevelopment}/getschedulesummary?from_date=${formattedFrom_Date}&to_date=${formattedTo_Date}&branch_id=${branchIdParam}&category_required=${select_category}`)
         .then(response => {
-          //setData(response.data);formattedTo_Date
-          //console.log("Rohit");
-          //console.log(response.data.data['Completed_Schedules']);
+ 
           var completed_service_schedules = response.data.data['Completed_Schedules'];
           var pending_service_schedules = response.data.data['Pending_Schedules'];
 
@@ -487,12 +483,15 @@ function App() {
 
           //console.log(servicecategory);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('Error fetching data: ', error);
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
 
       // Category Schedules
-
+       setIsLoading(true);
       axios.post(`${URLDevelopment}/getschedulecategoryrevenue?from_date=${formattedFrom_Date}&to_date=${formattedTo_Date}&branch_id=${branchIdParam}&category_required=${select_category}`)
         .then(response => {
           //setData(response.data);formattedTo_Date
@@ -501,16 +500,25 @@ function App() {
           setservicecategory(response.data.data);
           //console.log(servicecategory);
         })
+        .catch((error) => {
+          console.error('Error fetching data: ', error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
 
+        setIsLoading(true);
       axios.post(`${URLDevelopment}/getschedulerevenue?from_date=${formattedFrom_Date}&to_date=${formattedTo_Date}&branch_id=${branchIdParam}&category_required=${select_category}`)
         .then(response => {
           //setData(response.data);
           settabledata5(response.data.data);
 
         })
-
-        .catch(error => {
+        .catch((error) => {
           console.error('Error fetching data: ', error);
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
 
     }
@@ -519,15 +527,19 @@ function App() {
     console.log(formattedFrom_Date, formattedTo_Date, select_branch);
 
     const branchIdParam = select_branch !== undefined ? select_branch : '';
+    setIsLoading(true)
     axios.post(`${URLDevelopment}/getinvoices?from_date=${formattedFrom_Date}&to_date=${formattedTo_Date}&branch_id=${branchIdParam}`)
       .then(response => {
         //setData(response.data);
         settabledata1(response.data.data);
         console.log(response.data.data);
       })
-      .catch(error => {
-        console.error('Error fetching data: ', error);
-      });
+      .catch((error) => {
+          console.error('Error fetching data: ', error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
 
     console.log(formattedFrom_Date, formattedTo_Date, select_branch);
     firstbar == false ?
@@ -539,10 +551,11 @@ function App() {
           //console.log(response.data.data);
           console.log(response.data.data);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('Error fetching data: ', error);
         })
       :
+    setIsLoading(true);
       axios.post(`${URLDevelopment}/getschedulecategoryrevenue?from_date=${formattedFrom_Date}&to_date=${formattedTo_Date}&branch_id=${branchIdParam}&category_required=${select_category}`)
         .then(response => {
           //setData(response.data);formattedTo_Date
@@ -550,20 +563,26 @@ function App() {
           // console.log("Deepthi");
           console.log(servicecategory);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('Error fetching data: ', error);
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
-
+     setIsLoading(true);
     axios.post(`${URLDevelopment}/getservicecategorybranch?from_date=${formattedFrom_Date}&to_date=${formattedTo_Date}&branch_id=${branchIdParam}&service_category=${select_category}`)
       .then(response => {
         setPiechartCategory(response.data.data);
         console.log(response.data.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching data: ', error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
 
-
+setIsLoading(true);
     axios.post(`${URLDevelopment}/getalldayinvoice?from_date=${formattedFrom_Date}&to_date=${formattedTo_Date}&branch_id=${branchIdParam}`)
       .then(response => {
         //setData(response.data);
@@ -571,37 +590,29 @@ function App() {
         //console.log(response.data.data);
         console.log(alldaydata);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching data: ', error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
 
     console.log(formattedFrom_Date, formattedTo_Date, select_branch);
     let select_branchs = branch.id;
     console.log(formattedFrom_Date, formattedTo_Date, select_branchs);
-
+   setIsLoading(true);
     axios.post(`${URLDevelopment}/getinvoicesbranches?from_date=${formattedFrom_Date}&to_date=${formattedTo_Date}&branch_id=${branchIdParam}`)
       .then(response => {
         setPiechartdata(response.data.data);
         console.log(response.data.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching data: ', error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-
-
-
-
-    // axios.post(`{URLDevelopment}/getpendingschedules?from_date=${formattedFrom_Date}&to_date=${formattedTo_Date}&branch_id=${select_branch}`)
-    //   .then(response => {
-    //     setGetpendingschedules(response.data.data);
-    //     console.log(response.data.data);
-    //   })
-    //   .catch(error => {
-    //     console.error('Error fetching data: ', error);
-    //   });
-
-
-
+    setIsLoading(true);
     axios.post(`${URLDevelopment}/getsummary?from_date=${formattedFrom_Date}&to_date=${formattedTo_Date}&branch_id=${branchIdParam}`)
       .then(response => {
         //setData(response.data);
@@ -638,8 +649,10 @@ function App() {
         console.log(response.data.data['Invoice_Sum']);
       })
       .catch(error => {
-
         console.error('Error fetching data: ', error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -716,7 +729,7 @@ function App() {
     }).format(value).split('.')[0];
   }
 
-  
+
   function formatDate(date) {
     // Format the date as DD-MM-YY
     return new Intl.DateTimeFormat('en-IN', {
@@ -744,7 +757,7 @@ function App() {
             content += entry.dataPoint.name + ": " + entry.dataPoint.label + "<br>";
             content += entry.dataPoint.name + ": " + formatCurrency(entry.dataPoint.y) + "<br>";
           } else {
-            content += "Service Type: " + entry.dataPoint.label+ "<br>";
+            content += "Service Type: " + entry.dataPoint.label + "<br>";
             content += "Amount: " + formatCurrency(entry.dataPoint.y) + "<br>";
           }
         });
@@ -799,7 +812,6 @@ function App() {
     }
   };
 
-
   //===================================================Cursor Style========================================================= 
 
   const cursorstyle = {
@@ -809,63 +821,63 @@ function App() {
 
 
   //--------------------------------Pie Charts Data Fetching-----------------------------------------  
-useEffect(() => {
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR'
-    }).format(amount).split('.')[0];
-  };
+  useEffect(() => {
+    const formatCurrency = (amount) => {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR'
+      }).format(amount).split('.')[0];
+    };
 
-  const dataPoints = firstbar === false
-    ? piechartdata.map(item => ({
-      y: item.total_amount_sum,
-      label: item.branch_name,
-      yValueFormatString: formatCurrency(item.total_amount_sum)
-    }))
-    : piechartCategory.map(item => ({
-      y: item.total_amount_sum,
-      label: item.branch_name,
-      yValueFormatString: formatCurrency(item.total_amount_sum)
-    }));
-  const options = {
-    animationEnabled: true,
-    exportEnabled: true,
-    theme: "light",
-    title: {
-      text: "Branch Wise Pie-Chart",
-      fontSize: 20,
-      fontFamily: "arial",
-      fontWeight: "bold"
-    },
-    toolTip: {
-      shared: true,
-      contentFormatter: function (e) {
-        let content = '';
-        e.entries.forEach(function (entry) {
-          if (entry.dataPoint.name) {
-            content += entry.dataPoint.name + ": " + entry.dataPoint.label + "<br>";
-            content += entry.dataPoint.name + ": " + formatCurrency(entry.dataPoint.y) + "<br>";
-          } else {
-            content += "Branch: " + entry.dataPoint.label+ "<br>";
-            content += "Amount: " + formatCurrency(entry.dataPoint.y) + "<br>";
-          }
-        });
-        return content;
-      }
-    },
-    data: [{
-      type: "pie",
-      indexLabel: "{label}: {yValueFormatString}",
-      startAngle: -180,
-      dataPoints: dataPoints,
-    }]
-  };
+    const dataPoints = firstbar === false
+      ? piechartdata.map(item => ({
+        y: item.total_amount_sum,
+        label: item.branch_name,
+        yValueFormatString: formatCurrency(item.total_amount_sum)
+      }))
+      : piechartCategory.map(item => ({
+        y: item.total_amount_sum,
+        label: item.branch_name,
+        yValueFormatString: formatCurrency(item.total_amount_sum)
+      }));
+    const options = {
+      animationEnabled: true,
+      exportEnabled: true,
+      theme: "light",
+      title: {
+        text: "Branch Wise Pie-Chart",
+        fontSize: 20,
+        fontFamily: "arial",
+        fontWeight: "bold"
+      },
+      toolTip: {
+        shared: true,
+        contentFormatter: function (e) {
+          let content = '';
+          e.entries.forEach(function (entry) {
+            if (entry.dataPoint.name) {
+              content += entry.dataPoint.name + ": " + entry.dataPoint.label + "<br>";
+              content += entry.dataPoint.name + ": " + formatCurrency(entry.dataPoint.y) + "<br>";
+            } else {
+              content += "Branch: " + entry.dataPoint.label + "<br>";
+              content += "Amount: " + formatCurrency(entry.dataPoint.y) + "<br>";
+            }
+          });
+          return content;
+        }
+      },
+      data: [{
+        type: "pie",
+        indexLabel: "{label}: {yValueFormatString}",
+        startAngle: -180,
+        dataPoints: dataPoints,
+      }]
+    };
 
-  const chart = new CanvasJS.Chart("chartContainer", options);
-  chart.render();
-}, [firstbar, piechartdata, piechartCategory]);
- // piechartdata as a dependency
+    const chart = new CanvasJS.Chart("chartContainer", options);
+    chart.render();
+  }, [firstbar, piechartdata, piechartCategory]);
+  // piechartdata as a dependency
   // Empty dependency array to run this effect only once
 
 
@@ -878,17 +890,17 @@ useEffect(() => {
 
   const [currentPage1, setCurrentPage1] = useState(1); // pagination state
   const [rowsPerPage1, setRowsPerPage1] = useState(10); // row control state
-  const [selectedRows1, setSelectedRows1] = useState([]); 
+  const [selectedRows1, setSelectedRows1] = useState([]);
   const [currentPage2, setCurrentPage2] = useState(1); // pagination state
   const [rowsPerPage2, setRowsPerPage2] = useState(10); // row control state
-  const [selectedRows2, setSelectedRows2] = useState([]); 
+  const [selectedRows2, setSelectedRows2] = useState([]);
   const [currentPage3, setCurrentPage3] = useState(1); // pagination state
   const [rowsPerPage3, setRowsPerPage3] = useState(10); // row control state
-  const [selectedRows3, setSelectedRows3] = useState([]); 
+  const [selectedRows3, setSelectedRows3] = useState([]);
 
-   //table data
+  //table data
 
-   const columns1 = [
+  const columns1 = [
     {
       name: 'Sno',
       // selector: 'id', // Adjust this to your data structure
@@ -897,7 +909,7 @@ useEffect(() => {
         return (currentPage1 - 1) * rowsPerPage1 + index + 1;
       },
       sortable: true,
-       width: '70px',
+      width: '70px',
     },
     {
       name: 'Branch',
@@ -962,18 +974,18 @@ useEffect(() => {
       sortable: true,
       cell: (row) => (
         <span
-          className={`${
-            row.status === 'Pending'
+          className={`${row.status === 'Pending'
               ? 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800'
               : row.status === 'Paid'
-              ? 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'
-              : 'text-black' // Default color for other statuses
-          }`}
+                ? 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'
+                : 'text-black' // Default color for other statuses
+            }`}
         >
           {row.status}
         </span>
       ),
-    },  
+    },
+
   ];
   const assignedTasksColumn = {
     name: 'Assigned Tasks',
@@ -986,13 +998,13 @@ useEffect(() => {
       return <span>{assignedTasks}</span>;
     },
   };
-  
+
   const columns2 = [
     {
       name: 'Name',
       selector: 'first_name',
       sortable: true,
-      
+
     },
     {
       name: 'Branch',
@@ -1040,13 +1052,12 @@ useEffect(() => {
       sortable: true,
       cell: (row) => (
         <span
-          className={`${
-            row.status === 'Pending'
+          className={`${row.status === 'Pending'
               ? 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800'
               : row.status === 'Completed'
-              ? 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'
-              : 'text-black' // Default color for other statuses
-          }`}
+                ? 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'
+                : 'text-black' // Default color for other statuses
+            }`}
         >
           {row.status}
         </span>
@@ -1064,7 +1075,7 @@ useEffect(() => {
       return <span>{assignedTasks}</span>;
     },
   };
-  
+
   const columns3 = [
     {
       name: 'Name',
@@ -1117,13 +1128,12 @@ useEffect(() => {
       sortable: true,
       cell: (row) => (
         <span
-          className={`${
-            row.status === 'Pending'
+          className={`${row.status === 'Pending'
               ? 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800'
               : row.status === 'Paid'
-              ? 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'
-              : 'text-black' // Default color for other statuses
-          }`}
+                ? 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'
+                : 'text-black' // Default color for other statuses
+            }`}
         >
           {row.status}
         </span>
@@ -1134,11 +1144,11 @@ useEffect(() => {
   const tableCustomStyles = {
     headRow: {
       style: {
-        color:'#ffff',
+        color: '#ffff',
         backgroundColor: '#003f5c'
       },
     },
-    
+
     rows: {
       style: {
         color: "STRIPEDCOLOR",
@@ -1150,115 +1160,115 @@ useEffect(() => {
       }
     }
   }
-    
- // export button handling
 
- const handleExportSelected1 = () => {
-  const selectedDataToExport1 = selectedRows1.map((row,index) => ({
-    Sno: index + 1, 
-    Branch: row.branch_name,
-    'Patient ID': row.patient_id,
-    'Patient Name': row.first_name,
-    'Invoice No': row.invoice_no,
-    'Invoice Date': row.dates,
-    Amount: new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    })
-      .format(row.total_amount)
-      .split('.')[0],
-    Paid: new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-    })
-      .format(row.amount_paid)
-      .split('.')[0],
-    Status: row.status,
-  }));
+  // export button handling
 
-  selectedDataToExport1.sort((a, b) => a.Sno - b.Sno);
-
-  return (
-    <CSVLink
-      data={selectedDataToExport1}
-      filename="table_value.csv"
-      className="group [transform:translateZ(0)] px-6 py-3 rounded-lg overflow-hidden bg-gray-300 relative before:absolute before:bg-[#339966] before:top-1/2 before:left-1/2 before:h-2 before:w-9 before:-translate-y-1/2 before:-translate-x-1/2 before:rounded-sm  before:opacity-0 hover:before:scale-[6] hover:before:opacity-100 before:transition before:ease-in-out before:duration-500"
-    >
-      <span className="relative z-0 text-black transition duration-500 ease-in-out group-hover:text-gray-200">
-        Export Selected as CSV
-      </span>
-    </CSVLink>
-  );
-};
- // export button handling
-
- const handleExportSelected2 = () => {
-  const selectedDataToExport2 = selectedRows2.map((row) => {
-    const assignedTasksArray = JSON.parse(row.assigned_tasks);
-    const assignedTasks = assignedTasksArray.map((task) => task.task).join(', ');
-
-    return {
-      'Patient Name': row.first_name,
+  const handleExportSelected1 = () => {
+    const selectedDataToExport1 = selectedRows1.map((row, index) => ({
+      Sno: index + 1,
       Branch: row.branch_name,
-      'Service Name': row.service_name,
-      'Schedule Date': row.schedule_date,
-      'Membership Type': row.membership_type,
-      'Assigned Tasks': assignedTasks,
+      'Patient ID': row.patient_id,
+      'Patient Name': row.first_name,
+      'Invoice No': row.invoice_no,
+      'Invoice Date': row.dates,
       Amount: new Intl.NumberFormat('en-IN', {
         style: 'currency',
         currency: 'INR',
-      }).format(row.amount).split('.')[0],
-      Status: row.status,
-    };
-  });
-
-  return (
-    <CSVLink
-      data={selectedDataToExport2}
-      filename="table_value.csv"
-      className="group [transform:translateZ(0)] px-6 py-3 rounded-lg overflow-hidden bg-gray-300 relative before:absolute before:bg-[#339966] before:top-1/2 before:left-1/2 before:h-2 before:w-9 before:-translate-y-1/2 before:-translate-x-1/2 before:rounded-sm  before:opacity-0 hover:before:scale-[6] hover:before:opacity-100 before:transition before:ease-in-out before:duration-500"
-    >
-      <span className="relative z-0 text-black transition duration-500 ease-in-out group-hover:text-gray-200">
-        Export Selected as CSV
-      </span>
-    </CSVLink>
-  );
-};
-
- // export button handling
-
- const handleExportSelected3 = () => {
-  const selectedDataToExport3 = selectedRows3.map((row) => {
-    const assignedTasksArray = JSON.parse(row.assigned_tasks);
-    const assignedTasks = assignedTasksArray.map((task) => task.task).join(', ');
-
-    return {
-      'Patient Name': row.first_name,
-      Branch: row.branch_name,
-      'Service Name': row.service_name,
-      'Schedule Date': row.schedule_date,
-      'Membership Type': row.membership_type,
-      'Assigned Tasks': assignedTasks,
-      Amount: new Intl.NumberFormat('en-IN', {
+      })
+        .format(row.total_amount)
+        .split('.')[0],
+      Paid: new Intl.NumberFormat('en-IN', {
         style: 'currency',
         currency: 'INR',
-      }).format(row.amount).split('.')[0],
+      })
+        .format(row.amount_paid)
+        .split('.')[0],
       Status: row.status,
-    };
-  });
+    }));
 
-  return (
-    <CSVLink
-      data={selectedDataToExport3}
-      filename="table_value.csv"
-      className="group [transform:translateZ(0)] px-6 py-3 rounded-lg overflow-hidden bg-gray-300 relative before:absolute before:bg-[#339966] before:top-1/2 before:left-1/2 before:h-2 before:w-9 before:-translate-y-1/2 before:-translate-x-1/2 before:rounded-sm  before:opacity-0 hover:before:scale-[6] hover:before:opacity-100 before:transition before:ease-in-out before:duration-500"
-    >
-      <span className="relative z-0 text-black transition duration-500 ease-in-out group-hover:text-gray-200">
-        Export Selected as CSV
-      </span>
-    </CSVLink>
-  );
-};
+    selectedDataToExport1.sort((a, b) => a.Sno - b.Sno);
+
+    return (
+      <CSVLink
+        data={selectedDataToExport1}
+        filename="table_value.csv"
+        className="group [transform:translateZ(0)] px-6 py-3 rounded-lg overflow-hidden bg-gray-300 relative before:absolute before:bg-[#339966] before:top-1/2 before:left-1/2 before:h-2 before:w-9 before:-translate-y-1/2 before:-translate-x-1/2 before:rounded-sm  before:opacity-0 hover:before:scale-[6] hover:before:opacity-100 before:transition before:ease-in-out before:duration-500"
+      >
+        <span className="relative z-0 text-black transition duration-500 ease-in-out group-hover:text-gray-200">
+          Export Selected as CSV
+        </span>
+      </CSVLink>
+    );
+  };
+  // export button handling
+
+  const handleExportSelected2 = () => {
+    const selectedDataToExport2 = selectedRows2.map((row) => {
+      const assignedTasksArray = JSON.parse(row.assigned_tasks);
+      const assignedTasks = assignedTasksArray.map((task) => task.task).join(', ');
+
+      return {
+        'Patient Name': row.first_name,
+        Branch: row.branch_name,
+        'Service Name': row.service_name,
+        'Schedule Date': row.schedule_date,
+        'Membership Type': row.membership_type,
+        'Assigned Tasks': assignedTasks,
+        Amount: new Intl.NumberFormat('en-IN', {
+          style: 'currency',
+          currency: 'INR',
+        }).format(row.amount).split('.')[0],
+        Status: row.status,
+      };
+    });
+
+    return (
+      <CSVLink
+        data={selectedDataToExport2}
+        filename="table_value.csv"
+        className="group [transform:translateZ(0)] px-6 py-3 rounded-lg overflow-hidden bg-gray-300 relative before:absolute before:bg-[#339966] before:top-1/2 before:left-1/2 before:h-2 before:w-9 before:-translate-y-1/2 before:-translate-x-1/2 before:rounded-sm  before:opacity-0 hover:before:scale-[6] hover:before:opacity-100 before:transition before:ease-in-out before:duration-500"
+      >
+        <span className="relative z-0 text-black transition duration-500 ease-in-out group-hover:text-gray-200">
+          Export Selected as CSV
+        </span>
+      </CSVLink>
+    );
+  };
+
+  // export button handling
+
+  const handleExportSelected3 = () => {
+    const selectedDataToExport3 = selectedRows3.map((row) => {
+      const assignedTasksArray = JSON.parse(row.assigned_tasks);
+      const assignedTasks = assignedTasksArray.map((task) => task.task).join(', ');
+
+      return {
+        'Patient Name': row.first_name,
+        Branch: row.branch_name,
+        'Service Name': row.service_name,
+        'Schedule Date': row.schedule_date,
+        'Membership Type': row.membership_type,
+        'Assigned Tasks': assignedTasks,
+        Amount: new Intl.NumberFormat('en-IN', {
+          style: 'currency',
+          currency: 'INR',
+        }).format(row.amount).split('.')[0],
+        Status: row.status,
+      };
+    });
+
+    return (
+      <CSVLink
+        data={selectedDataToExport3}
+        filename="table_value.csv"
+        className="group [transform:translateZ(0)] px-6 py-3 rounded-lg overflow-hidden bg-gray-300 relative before:absolute before:bg-[#339966] before:top-1/2 before:left-1/2 before:h-2 before:w-9 before:-translate-y-1/2 before:-translate-x-1/2 before:rounded-sm  before:opacity-0 hover:before:scale-[6] hover:before:opacity-100 before:transition before:ease-in-out before:duration-500"
+      >
+        <span className="relative z-0 text-black transition duration-500 ease-in-out group-hover:text-gray-200">
+          Export Selected as CSV
+        </span>
+      </CSVLink>
+    );
+  };
 
 
   //------ If Data  False, then Table is Displayed without service Data --------------------------------------------   
@@ -1266,10 +1276,13 @@ useEffect(() => {
 
     //-----Onclick to fetch Invoices Data---------------------------------------------------    
     if (selecttype === 'Invoices') {
-      
+
       tableContent = (
-        
-       <DataTable
+        isLoading ? (
+          // Step 2: Conditional rendering for the loading animation
+          <div>Loading...</div>
+        ) : (
+        <DataTable
           columns={columns1}
           data={tabledata1}
           pagination
@@ -1327,54 +1340,62 @@ useEffect(() => {
             </div>
           )}
         />
-      
-      
+        )
       );
       //----- Onclick to fetch Completed Data-------------------------------------------------------------
     } else if (selecttype === 'completedschedules') {
       tableContent = (
-        
+        isLoading ? (
+          // Step 2: Conditional rendering for the loading animation
+          <div>Loading...</div>
+        ) : (
         <DataTable
-        columns={columns2}
-        data={tabledata3}
-        pagination
-        paginationPerPage={rowsPerPage2}
-        paginationRowsPerPageOptions={[5, 10, 20, 50, 100, 250, 500]}
-        paginationTotalRows={tabledata3.length}
-        selectableRows
-        onSelectedRowsChange={(selectedRows) => {
-          setSelectedRows2(selectedRows.selectedRows);
-        }}
-        onTableUpdate={({ page, rowsPerPage }) => {
-          setCurrentPage2(page);
-          setRowsPerPage2(rowsPerPage);
-        }}
-        striped
-        customStyles={tableCustomStyles}
-      />
+          columns={columns2}
+          data={tabledata3}
+          pagination
+          paginationPerPage={rowsPerPage2}
+          paginationRowsPerPageOptions={[5, 10, 20, 50, 100, 250, 500]}
+          paginationTotalRows={tabledata3.length}
+          selectableRows
+          onSelectedRowsChange={(selectedRows) => {
+            setSelectedRows2(selectedRows.selectedRows);
+          }}
+          onTableUpdate={({ page, rowsPerPage }) => {
+            setCurrentPage2(page);
+            setRowsPerPage2(rowsPerPage);
+          }}
+          striped
+          customStyles={tableCustomStyles}
+        />
+        )
       );
     }
     //----- Onclick to fetch Pending Data-------------------------------------------------------------
     else if (selecttype === 'pendingschedules') {
       tableContent = (
-         <DataTable
-         columns={columns3}
-         data={tabledata4}
-         pagination
-         paginationPerPage={rowsPerPage3}
-         paginationRowsPerPageOptions={[5, 10, 20, 50, 100, 250, 500]}
-         paginationTotalRows={tabledata4.length}
-         selectableRows
-         onSelectedRowsChange={(selectedRows) => {
-           setSelectedRows3(selectedRows.selectedRows);
-         }}
-         onTableUpdate={({ page, rowsPerPage }) => {
-           setCurrentPage3(page);
-           setRowsPerPage3(rowsPerPage);
-         }}
-         striped
-         customStyles={tableCustomStyles}
-       />
+        isLoading ? (
+          // Step 2: Conditional rendering for the loading animation
+          <div>Loading...</div>
+        ) : (
+        <DataTable
+          columns={columns3}
+          data={tabledata4}
+          pagination
+          paginationPerPage={rowsPerPage3}
+          paginationRowsPerPageOptions={[5, 10, 20, 50, 100, 250, 500]}
+          paginationTotalRows={tabledata4.length}
+          selectableRows
+          onSelectedRowsChange={(selectedRows) => {
+            setSelectedRows3(selectedRows.selectedRows);
+          }}
+          onTableUpdate={({ page, rowsPerPage }) => {
+            setCurrentPage3(page);
+            setRowsPerPage3(rowsPerPage);
+          }}
+          striped
+          customStyles={tableCustomStyles}
+        />
+        )
       );
     }
 
@@ -1677,7 +1698,10 @@ useEffect(() => {
                         </div>
                         <div className="flex-1 text-right md:text-center">
                           <h2 className="font-bold text-gray-600 uppercase">Invoices</h2>
-                          <p className="text-3xl font-bold">{invoiceamount} <span className="text-green-500"><i className="fas fa-caret-up"></i></span></p>
+                          <p className="text-3xl font-bold">{isLoading ? (
+          // Step 2: Conditional rendering for the loading animation
+          <div>Loading...</div>
+        ) : (invoiceamount)} <span className="text-green-500"><i className="fas fa-caret-up"></i></span></p>
                         </div>
                       </div>
                     </div>
@@ -1696,7 +1720,10 @@ useEffect(() => {
                         </div>
                         <div className="flex-1 text-right md:text-center">
                           <h2 style={cursorstyle} onClick={viewreceipts} className="font-bold text-gray-600 uppercase">Receipts</h2>
-                          <p className="text-3xl font-bold">{receiptamount}<span className="text-pink-500"><i className="fas fa-exchange-alt"></i></span></p>
+                          <p className="text-3xl font-bold">{isLoading ? (
+          // Step 2: Conditional rendering for the loading animation
+          <div>Loading...</div>
+        ) : (receiptamount)}<span className="text-pink-500"><i className="fas fa-exchange-alt"></i></span></p>
                         </div>
                       </div>
                     </div>
@@ -1713,7 +1740,10 @@ useEffect(() => {
                         </div>
                         <div className="flex-1 text-right md:text-center">
                           <h2 style={cursorstyle} onClick={pendingreceipts} className="font-bold text-gray-600 uppercase">Remaining</h2>
-                          <p className="text-3xl font-bold">{remainingamount} <span className="text-yellow-600"><i className="fas fa-caret-up"></i></span></p>
+                          <p className="text-3xl font-bold">{isLoading ? (
+          // Step 2: Conditional rendering for the loading animation
+          <div>Loading...</div>
+        ) : (remainingamount)} <span className="text-yellow-600"><i className="fas fa-caret-up"></i></span></p>
                         </div>
                       </div>
                     </div>
@@ -1732,7 +1762,10 @@ useEffect(() => {
                         <div className="flex-1 text-right md:text-center">
 
                           <h2 style={cursorstyle} onClick={completedschedules} className="font-bold text-gray-600 uppercase">Completed Schedules</h2>
-                          <p className="text-3xl font-bold">{completedschedulesamount}</p>
+                          <p className="text-3xl font-bold">{isLoading ? (
+          // Step 2: Conditional rendering for the loading animation
+          <div>Loading...</div>
+        ) : (completedschedulesamount)}</p>
                         </div>
                       </div>
                     </div>
@@ -1753,7 +1786,10 @@ useEffect(() => {
                         <div className="flex-1 text-right md:text-center">
 
                           <h2 style={cursorstyle} onClick={completedschedules} className="font-bold text-gray-600 uppercase">Completed Schedules</h2>
-                          <p className="text-3xl font-bold">{completedserviceschedulesamount}</p>
+                          <p className="text-3xl font-bold">{isLoading ? (
+          // Step 2: Conditional rendering for the loading animation
+          <div>Loading...</div>
+        ) : (completedserviceschedulesamount)}</p>
                         </div>
                       </div>
                     </div>
@@ -1772,7 +1808,10 @@ useEffect(() => {
                         </div>
                         <div className="flex-1 text-right md:text-center" >
                           <h2 className="font-bold text-gray-600 uppercase" style={cursorstyle} onClick={completedschedules}>Pending Schedules</h2>
-                          <p className="text-3xl font-bold">{pendingservicescheduleamount} <span className="text-red-500"><i className="fas fa-caret-up"></i></span></p>
+                          <p className="text-3xl font-bold">{isLoading ? (
+          // Step 2: Conditional rendering for the loading animation
+          <div>Loading...</div>
+        ) : (pendingservicescheduleamount)} <span className="text-red-500"><i className="fas fa-caret-up"></i></span></p>
                         </div>
                       </div>
                     </div>
@@ -1791,7 +1830,10 @@ useEffect(() => {
                         </div>
                         <div className="flex-1 text-right md:text-center">
                           <h2 style={cursorstyle} onClick={viewreceipts} className="font-bold text-gray-600 uppercase">Invoices+Completed Schedules</h2>
-                          <p className="text-3xl font-bold">{estimatedamount}</p>
+                          <p className="text-3xl font-bold">{isLoading ? (
+          // Step 2: Conditional rendering for the loading animation
+          <div>Loading...</div>
+        ) : (estimatedamount)}</p>
                         </div>
                       </div>
                     </div>
@@ -1810,7 +1852,10 @@ useEffect(() => {
                         </div>
                         <div className="flex-1 text-right md:text-center" >
                           <h2 className="font-bold text-gray-600 uppercase" style={cursorstyle} onClick={pendingSchedules}>Pending Schedules</h2>
-                          <p className="text-3xl font-bold">{pendingscheduleamount} <span className="text-red-500"><i className="fas fa-caret-up"></i></span></p>
+                          <p className="text-3xl font-bold">{isLoading ? (
+          // Step 2: Conditional rendering for the loading animation
+          <div>Loading...</div>
+        ) : (pendingscheduleamount)} <span className="text-red-500"><i className="fas fa-caret-up"></i></span></p>
                         </div>
                       </div>
                     </div>
@@ -1825,7 +1870,10 @@ useEffect(() => {
 
               <div className="grid shadow-sm col-2 h-96 ">
                 <div className="relative overflow-x-auto bg-white border-2 border-solid rounded shadow-md sm:rounded-lg">
-                  <CanvasJSStockChart containerProps={containerProps} options={stock_chart_options} />
+                  {isLoading ? (
+          // Step 2: Conditional rendering for the loading animation
+          <div>Loading...</div>
+        ) : (<CanvasJSStockChart containerProps={containerProps} options={stock_chart_options} />)}
                 </div>
 
               </div>
@@ -1835,7 +1883,10 @@ useEffect(() => {
             <div className="grid grid-cols-1 shadow-sm container-fluid lg:grid-cols-2">
               <div className="relative overflow-x-auto text-xl font-semibold rounded-lg shadow-md sm:rounded-lg">
 
-                <CanvasJSChart options={category_chart_options} />
+                {isLoading ? (
+          // Step 2: Conditional rendering for the loading animation
+          <div>Loading...</div>
+        ) : (<CanvasJSChart options={category_chart_options} />)}
 
               </div>
               <div style={chartContainerStyle} className='text-xl font-semibold'>
@@ -1849,15 +1900,11 @@ useEffect(() => {
             <br></br>
             {/* List of Data */}
             <div className="grid  shadow-sm col-1 ">
-            <div className='w-50 m-5'>{selectedRows1.length > 0 && handleExportSelected1() || selectedRows2.length > 0 && handleExportSelected2() || selectedRows3.length > 0 && handleExportSelected3() }</div> 
+              <div className='w-50 m-5'>{selectedRows1.length > 0 && handleExportSelected1() || selectedRows2.length > 0 && handleExportSelected2() || selectedRows3.length > 0 && handleExportSelected3()}</div>
               {/* <div className="relative overflow-x-auto rounded shadow-md sm:rounded-lg "> */}
               <div className="rounded shadow-md sm:rounded-lg ">
-              
                 {tableContent}
-
               </div>
-
-
             </div>
           </main>
           <footer className="col-span-7 p-2 bg-white border-2 ">
